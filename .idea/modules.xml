@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/USA2Georgia/USA2Georgia.iml" filepath="$PROJECT_DIR$/USA2Georgia/USA2Georgia.iml" />
+      <module fileurl="file://$PROJECT_DIR$/USA2GeorgiaProject.iml" filepath="$PROJECT_DIR$/USA2GeorgiaProject.iml" />
+    </modules>
+  </component>
+</project>
+
