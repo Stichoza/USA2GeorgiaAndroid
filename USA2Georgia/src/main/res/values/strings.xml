@@ -2,9 +2,13 @@
 <resources>
 
     <string name="app_name">USA2Georgia</string>
+
     <string name="title_section1">რეისები</string>
     <string name="title_section2">ბლოგი</string>
     <string name="title_section3">კონტაქტი</string>
+
     <string name="action_settings">პარამეტრები</string>
+    <string name="action_about">აპლიკაციის შესახებ</string>
+    <string name="action_refresh">განახლება</string>
 
 </resources>

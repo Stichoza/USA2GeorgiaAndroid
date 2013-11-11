@@ -1,0 +1,19 @@
+<resources>
+        <string name="title_activity_login">ავტორიზაცია</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_email">ელ-ფოსტა</string>
+    <string name="prompt_password">პაროლი</string>
+
+    <string name="action_sign_in_register"><b>შესვლა</b> or register</string>
+    <string name="action_sign_in_short">შესვლა</string>
+
+    <string name="action_forgot_password">პაროლის აღდგენა</string>
+
+    <string name="login_progress_signing_in">ავტორიზაცია&#8230;</string>
+
+    <string name="error_invalid_email">This email address is invalid</string>
+    <string name="error_invalid_password">This password is too short</string>
+    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_field_required">This field is required</string>
+</resources>
