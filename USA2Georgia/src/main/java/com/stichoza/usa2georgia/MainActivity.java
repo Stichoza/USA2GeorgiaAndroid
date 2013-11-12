@@ -1,19 +1,15 @@
 package com.stichoza.usa2georgia;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.Activity;
-import android.app.ProgressDialog;
-import android.os.AsyncTask;
 import android.os.Bundle;
 
-import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
@@ -21,27 +17,23 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import com.stichoza.usa2georgia.data.FlightDataHolder;
+import com.stichoza.usa2georgia.json.JSONParser;
 
 public class MainActivity extends ActionBarActivity implements ActionBar.TabListener {
 
     /**
-     * The {@link android.support.v4.view.PagerAdapter} that will provide
-     * fragments for each of the sections. We use a
-     * {@link FragmentPagerAdapter} derivative, which will keep every
-     * loaded fragment in memory. If this becomes too memory intensive, it
-     * may be best to switch to a
-     * {@link android.support.v4.app.FragmentStatePagerAdapter}.
+     * FragmentPagerAdapter will keep every loaded fragment in memory.
+     * Replace with android.support.v4.app.FragmentStatePagerAdapter if memory fucks up
      */
     SectionsPagerAdapter mSectionsPagerAdapter;
 
@@ -54,7 +46,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     TextView flightsDate;
     TextView flightsText;
 
-    ArrayList<HashMap<String, String>> oslist = new ArrayList<HashMap<String, String>>();
+    protected List<FlightDataHolder> jsonData = new ArrayList<FlightDataHolder>();
 
     private static String API_URL = "http://stichoza.com/projects/usa2georgia/api/";
 
@@ -64,6 +56,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     private static final String FL_ARRIVED = "arrived";
 
     JSONArray flights = null;
+    JSONArray blog = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,6 +97,39 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                             .setText(mSectionsPagerAdapter.getPageTitle(i))
                             .setTabListener(this));
         }
+
+        /* End default shit */
+        Log.e("x", "Yolo started");
+        JSONParser jParser = new JSONParser();
+        JSONArray json = jParser.getJSONFromUrl(API_URL);
+        Log.e("x", "Yolo parser :v");
+
+        try {
+            JSONArray flightObj = json.getJSONArray(0);
+            for (int i=0; i < flightObj.length(); i++) {
+                JSONObject c = flightObj.getJSONObject(i);// Used JSON Object from Android
+
+                // Storing each Json in a string variable
+                String jrName = c.getString("name");
+                String jrDate = c.getString("date");
+                String jrText = c.getString("text");
+                Boolean jrArrived = c.getBoolean("arrived");
+
+                jsonData.add(new FlightDataHolder(jrName, jrDate, jrText, jrArrived));
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } finally {
+            Log.e("x", "fuuuck :@");
+        }
+
+        ListView yourListView = (ListView) findViewById(R.id.list_flights);
+
+        ListAdapter customAdapter = new ListAdapter(this, R.layout.main_results_flights, jsonData);
+
+        yourListView.setAdapter(customAdapter);
+
+
     }
 
 
@@ -122,14 +148,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         // as you specify a parent activity in AndroidManifest.xml.
         switch (item.getItemId()) {
             case R.id.action_about:
-                System.out.print("action_about");
                 return true;
             case R.id.action_refresh:
-                new JSONParse().execute();
-                System.out.print("action_refresh");
+                //new JSONParse().execute();
                 return true;
             case R.id.action_settings:
-                System.out.print("action_settings");
                 //Intent settingsIntent = new Intent(this, SettingsActivity.class);
                 //startActivity(settingsIntent);
                 return true;
@@ -218,94 +241,14 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState) {
-            //Toast.makeText(, "Selected tab: " + Integer.toString(getArguments().getInt(ARG_SECTION_NUMBER)), Toast.LENGTH_SHORT).show();
+            //Toast.makeText(, "Selected tab: " + Integer.toString(getArguments()
+            // .getInt(ARG_SECTION_NUMBER)), Toast.LENGTH_SHORT).show();
             View rootView = inflater.inflate(R.layout.fragment_main_flights, container, false);
             //TextView textView = (TextView) rootView.findViewById(R.id.section_label);
             //textView.setText(Integer.toString(getArguments().getInt(ARG_SECTION_NUMBER)));
             return rootView;
         }
     }
-
-
-    private class JSONParse extends AsyncTask<String, String, JSONObject> {
-        private ProgressDialog pDialog;
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            flightsName = (TextView)findViewById(R.id.name);
-            flightsDate = (TextView)findViewById(R.id.date);
-            flightsText = (TextView)findViewById(R.id.text);
-            pDialog = new ProgressDialog(MainActivity.this);
-            pDialog.setMessage("იტვირთება");
-            pDialog.setIndeterminate(false);
-            pDialog.setCancelable(true);
-            pDialog.show();
-
-        }
-
-        @Override
-        protected JSONObject doInBackground(String... args) {
-
-            JSONParser jParser = new JSONParser();
-
-            // Getting JSON from URL
-            JSONObject json = jParser.getJSONFromUrl(API_URL);
-            return json;
-        }
-        @Override
-        protected void onPostExecute(JSONObject json) {
-            pDialog.dismiss();
-            try {
-                // Getting JSON Array from URL
-                flights = json.getJSONArray("flights");
-                for (int i = 0; i < flights.length(); i++) {
-                    JSONObject c = flights.getJSONObject(i);
-
-                    // Storing  JSON item in a Variable
-                    String name = c.getString(FL_NAME);
-                    String date = c.getString(FL_DATE);
-                    String text = c.getString(FL_TEXT);
-                    String arrived = c.getString(FL_ARRIVED);
-
-                    // Adding value HashMap key => value
-
-                    HashMap<String, String> map = new HashMap<String, String>();
-
-                    map.put(FL_NAME, name);
-                    map.put(FL_DATE, date);
-                    map.put(FL_TEXT, text);
-                    map.put(FL_ARRIVED, arrived);
-
-                    oslist.add(map);
-                    flightsList = (ListView) findViewById(R.id.list_flights);
-
-                    ListAdapter adapter = new SimpleAdapter(MainActivity.this, oslist,
-                            R.layout.main_results_flights,
-                            new String[] {FL_NAME, FL_DATE, FL_TEXT}, new int[] {
-                            R.id.name, R.id.date, R.id.text});
-
-                    flightsList.setAdapter(adapter);
-                    flightsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-                        @Override
-                        public void onItemClick(AdapterView<?> parent, View view,
-                                                int position, long id) {
-                            Toast.makeText(MainActivity.this, "You Clicked at "+oslist.get(+position).get("name"), Toast.LENGTH_SHORT).show();
-
-                        }
-                    });
-
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-        }
-    }
-
-
-
-
 
 
 }
