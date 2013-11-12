@@ -17,5 +17,21 @@ public class FlightDataHolder {
         this.arrived = arrived;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public Boolean getArrived() {
+        return arrived;
+    }
+
     // TODO Read http://stackoverflow.com/questions/17988054/populating-json-from-this-link-to-android-listview
 }
